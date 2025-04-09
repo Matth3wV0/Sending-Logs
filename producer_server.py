@@ -22,8 +22,7 @@ async def produce_logs():
                 await asyncio.sleep(0.01)  # non-blocking sleep
 
 async def stream_logs(websocket, path):
-    """ Continuously streams logs from Redis queue to WebSocket client """
-    print("WebSocket Client connected")
+    print("Client connected")
     try:
         while True:
             log = redis_client.blpop(REDIS_QUEUE, timeout=0)
@@ -31,6 +30,9 @@ async def stream_logs(websocket, path):
                 await websocket.send(log[1].decode('utf-8'))
     except websockets.ConnectionClosed:
         print("Client disconnected")
+    except Exception as e:
+        print(f"Error during stream: {e}")
+
 
 async def main():
     producer_task = asyncio.create_task(produce_logs())
